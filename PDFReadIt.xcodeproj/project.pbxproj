@@ -77,6 +77,7 @@
 		E6E3FD63241111D200FF0351 /* Sample_1.pdf in Resources */ = {isa = PBXBuildFile; fileRef = E6E3FD62241111D200FF0351 /* Sample_1.pdf */; };
 		E6FBF4CF23FC6B7A00AF3758 /* PDFReaderViewController+Delegates.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6FBF4CE23FC6B7A00AF3758 /* PDFReaderViewController+Delegates.swift */; };
 		E7C9FA3222350A55003FBCB6 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E7C9FA3122350A55003FBCB6 /* Assets.xcassets */; };
+		F1B7DDE825C87B2900DB8E34 /* UIColor+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1B7DDE725C87B2900DB8E34 /* UIColor+Extensions.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -152,6 +153,7 @@
 		E6E3FD62241111D200FF0351 /* Sample_1.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = Sample_1.pdf; sourceTree = "<group>"; };
 		E6FBF4CE23FC6B7A00AF3758 /* PDFReaderViewController+Delegates.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PDFReaderViewController+Delegates.swift"; sourceTree = "<group>"; };
 		E7C9FA3122350A55003FBCB6 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		F1B7DDE725C87B2900DB8E34 /* UIColor+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+Extensions.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -373,6 +375,7 @@
 				E6650E2223F5B35C00F311D4 /* UIViewController+Extensions.swift */,
 				E6650E2423F5CEBA00F311D4 /* UIView+Extensions.swift */,
 				E6B0B75223F6B5DF0018327E /* PDFPageChangePanGestureRecognizer.swift */,
+				F1B7DDE725C87B2900DB8E34 /* UIColor+Extensions.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -655,6 +658,7 @@
 				14155C801F0A425F00A53380 /* PDFReaderViewController.swift in Sources */,
 				1421EF151F0A411E00BEB695 /* AppDelegate.swift in Sources */,
 				E6B1EC5B23FA9A6300892634 /* InkSettingsToolsCell.swift in Sources */,
+				F1B7DDE825C87B2900DB8E34 /* UIColor+Extensions.swift in Sources */,
 				E6650E2B23F5FEC900F311D4 /* PDFReaderViewController+Annotations.swift in Sources */,
 				E6B1EC5623FA94BF00892634 /* PDFDrawer.swift in Sources */,
 				14155C881F0A45BE00A53380 /* PDFOutlineCell.swift in Sources */,
