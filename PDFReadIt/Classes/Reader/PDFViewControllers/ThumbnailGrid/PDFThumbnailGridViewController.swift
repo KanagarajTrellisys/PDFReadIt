@@ -41,7 +41,7 @@ class PDFThumbnailGridViewController: UICollectionViewController {
 
         let bundle = Bundle(for: Self.self)
         let backgroundView = UIView()
-        backgroundView.backgroundColor = .gray
+        backgroundView.backgroundColor = UIColor.init(hexStr: "1b1b1b")
         collectionView?.backgroundView = backgroundView
         collectionView?.register(UINib(nibName: String(describing: PDFThumbnailGridCell.self), bundle: bundle),
                                  forCellWithReuseIdentifier: String(describing: PDFThumbnailGridCell.self))

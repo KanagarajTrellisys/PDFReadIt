@@ -38,7 +38,7 @@ extension PDFReaderViewController: SearchViewControllerDelegate {
 
     func searchViewController(_ searchViewController: PDFSearchViewController,
                               didSelectSearchResult selection: PDFSelection) {
-        selectAndOpen(selection)
+      selectAndOpen(selection: selection)
         showBars()
     }
 }

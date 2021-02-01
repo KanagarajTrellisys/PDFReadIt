@@ -25,13 +25,29 @@ class PDFPageChangeSwipeGestureRecognizer: UISwipeGestureRecognizer {
         switch gestureRecognizer.direction {
         case .left:
             if pdfView.canGoToNextPage {
+                
+                let animation = CATransition()
+                animation.type = CATransitionType.reveal
+                animation.subtype = CATransitionSubtype.fromLeft
+                  animation.duration = 1.0
+                  animation.delegate = self as? CAAnimationDelegate
                 pdfView.goToNextPage(self)
                 pdfView.scaleFactor = pdfView.scaleFactorForSizeToFit
+                animation.timingFunction = CAMediaTimingFunction(name: CAMediaTimingFunctionName.easeInEaseOut)
+
             }
         case .right:
             if pdfView.canGoToPreviousPage {
+                let animation = CATransition()
+                animation.type = CATransitionType.reveal
+                animation.subtype = CATransitionSubtype.fromLeft
+                  animation.duration = 1.0
+                  animation.delegate = self as? CAAnimationDelegate
+
                 pdfView.goToPreviousPage(self)
                 pdfView.scaleFactor = pdfView.scaleFactorForSizeToFit
+                animation.timingFunction = CAMediaTimingFunction(name: CAMediaTimingFunctionName.easeInEaseOut)
+
             }
         case .up:
             break

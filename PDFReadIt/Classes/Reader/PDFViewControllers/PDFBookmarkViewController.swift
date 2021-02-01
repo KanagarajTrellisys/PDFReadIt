@@ -43,7 +43,7 @@ class PDFBookmarkViewController: UICollectionViewController {
         super.viewDidLoad()
 
         let backgroundView = UIView()
-        backgroundView.backgroundColor = .gray
+      backgroundView.backgroundColor = UIColor.init(hexStr: "1b1b1b")
         collectionView?.backgroundView = backgroundView
 
         let bundle = Bundle(for: Self.self)

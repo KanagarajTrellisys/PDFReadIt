@@ -11,40 +11,34 @@ import PDFKit
 import UIKit
 
 @objcMembers
-open class PDFReaderViewController: UIViewController {
+open class PDFReaderViewController: UIViewController,UIScrollViewDelegate {
 
     // MARK: - Static members
     static public func instantiateViewController(with document: PDFDocument) -> UINavigationController {
-        return instantiateViewController(with: document,
-                                         overridenTitle: nil,
-                                         isNeedToOverwriteDocument: true)
-    }
-    
-    static public func instantiateViewController(with document: PDFDocument,
-                                                 overridenTitle: String?) -> UINavigationController {
-        return instantiateViewController(with: document,
-                                         overridenTitle: overridenTitle,
-                                         isNeedToOverwriteDocument: true)
+        return instantiateViewController(with: document, isNeedToOverwriteDocument: true)
     }
 
     static public func instantiateViewController(with document: PDFDocument,
-                                                 overridenTitle: String?,
                                                  isNeedToOverwriteDocument: Bool) -> UINavigationController {
-        guard let navigationController = UIStoryboard(name: "PDFReadIt", bundle: Bundle(for: self))
+        guard let navigationController = UIStoryboard(name: "FF06", bundle: Bundle(for: self))
             .instantiateInitialViewController() as? UINavigationController,
             let viewController = navigationController.topViewController as? Self else {
                 fatalError("Unable to instantiate PDFReaderViewController")
         }
         viewController.pdfDocument = document
         viewController.isNeedToOverwriteDocument = isNeedToOverwriteDocument
-        viewController.overridenTitle = overridenTitle
+//      navigationController.navigationBar.barStyle = .blackTranslucent
+      navigationController.navigationBar.isTranslucent = true
+      navigationController.navigationBar.backgroundColor = UIColor.clear
         return navigationController
     }
 
     // MARK: - Outlets
     @IBOutlet private weak var pdfView: PDFView!
-    @IBOutlet private weak var pdfThumbnailViewContainer: UIView!
-    @IBOutlet private weak var pdfThumbnailView: PDFThumbnailView!
+//    @IBOutlet private weak var
+    let pdfThumbnailViewContainer = UIScrollView()
+//    @IBOutlet private weak var
+    let pdfThumbnailView = PDFThumbnailView()
     @IBOutlet private weak var pdfThumbnailViewHeightConstraint: NSLayoutConstraint!
 
     @IBOutlet private weak var titleLabel: UILabel!
@@ -71,11 +65,12 @@ open class PDFReaderViewController: UIViewController {
         ])
         return segmentedControl
     }()
-
+    let thumbnailSize: Int = 70
+    let pdfThumbnailPerPagePadding = 2
+    var previousPage:PDFPage?
     // MARK: - Variables
     /// Set this flag to false if you don't want to overwrite opened document (for example with drawings on it)
     var isNeedToOverwriteDocument = true
-    var overridenTitle: String?
     var pdfPrevPageChangeSwipeGestureRecognizer: PDFPageChangeSwipeGestureRecognizer?
     var pdfNextPageChangeSwipeGestureRecognizer: PDFPageChangeSwipeGestureRecognizer?
     private(set) var pdfDocument: PDFDocument?
@@ -121,6 +116,26 @@ open class PDFReaderViewController: UIViewController {
 
     override open func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         pdfView.autoScales = true // This call is required to fix PDF document scale, seems to be bug inside PDFKit
+      
+      if (size.width > self.view.frame.size.width) {
+              print("Landscape")
+        if pdfView.isUsingPageViewController == true {
+            pdfView.usePageViewController(false, withViewOptions: nil)
+            pdfView.displayMode = .twoUp
+            pdfView.backgroundColor = UIColor.init(hexStr: "1b1b1b")
+            thumbnailGridViewConainer.backgroundColor = UIColor.init(hexStr: "1b1b1b")
+//            pdfThumbnailView.backgroundColor = UIColor.init(hexStr: "1b1b1b")
+//            pdfThumbnailViewContainer.backgroundColor = UIColor.init(hexStr: "1b1b1b")
+          pdfThumbnailViewContainer.backgroundColor = UIColor.init(red: 27/255, green: 27/255, blue: 27/255, alpha: 0.6)
+          pdfThumbnailView.backgroundColor = UIColor.init(red: 27/255, green: 27/255, blue: 27/255, alpha: 0.6)
+            pdfView.superview?.backgroundColor = UIColor.init(hexStr: "1b1b1b")
+        }
+          } else {
+              print("Portrait")
+            if pdfView.isUsingPageViewController == false {
+              pdfView.usePageViewController(true, withViewOptions: nil)
+            }
+          }
     }
 
     override open func willTransition(to newCollection: UITraitCollection,
@@ -142,25 +157,41 @@ open class PDFReaderViewController: UIViewController {
             viewController.delegate = self
         }
     }
-
+  
+  //MARK:- get PDF pages
+  
+  func getPDFPages() -> [AnyHashable:Any] {
+      var pdfPages : Dictionary = Dictionary<AnyHashable,Any>()
+ 
+      for i in 0..<pdfView.document!.pageCount
+        {
+          let page = pdfView.document?.page(at: i)
+          pdfPages["\(i)"] = page! as PDFPage
+       }
+      return pdfPages
+  }
+  
     // MARK: - UI
     func setupUI() {
 
         pdfView.document = pdfDocument
-        titleLabel.text =
-            overridenTitle ??
-            pdfDocument?.documentAttributes?[PDFDocumentAttribute.titleAttribute] as? String ??
+        titleLabel.text = pdfDocument?.documentAttributes?[PDFDocumentAttribute.titleAttribute] as? String ??
             pdfDocument?.documentURL?.lastPathComponent
 
         if titleLabel.text == nil {
             titleLabel.isHidden = true
         }
 
-        pdfView.displayMode = .twoUp
+        
+        pdfView.displayMode = .singlePageContinuous
         pdfView.displaysAsBook = true
         pdfView.displayDirection = .horizontal
         pdfView.autoScales = true
+        pdfView.displaysPageBreaks = false
+        pdfView.backgroundColor =  UIColor.init(hexStr: "1b1b1b")
+        pdfView.superview?.backgroundColor = UIColor.init(hexStr: "1b1b1b")
 
+      
         let pdfPrevPageChangeSwipeGestureRecognizer = PDFPageChangeSwipeGestureRecognizer(pdfView: pdfView)
         pdfPrevPageChangeSwipeGestureRecognizer.direction = .left
         pdfView.addGestureRecognizer(pdfPrevPageChangeSwipeGestureRecognizer)
@@ -170,21 +201,64 @@ open class PDFReaderViewController: UIViewController {
         pdfNextPageChangeSwipeGestureRecognizer.direction = .right
         pdfView.addGestureRecognizer(pdfNextPageChangeSwipeGestureRecognizer)
         self.pdfNextPageChangeSwipeGestureRecognizer = pdfNextPageChangeSwipeGestureRecognizer
-
-        pdfThumbnailView.layoutMode = .horizontal
-        pdfThumbnailView.pdfView = pdfView
-
+        
+        pdfView.usePageViewController(true, withViewOptions: getPDFPages())
+        
+      
+//        pdfThumbnailView.layoutMode = .horizontal
+//        pdfThumbnailView.pdfView = pdfView
+//        pdfThumbnailView.thumbnailSize = CGSize.init(width: 80, height: 130)
+        setupThumbnailView()
+   
         titleLabelContainer.layer.cornerRadius = 4
         pageNumberLabelContainer.layer.cornerRadius = 4
+      
     }
+  
+   func setupThumbnailView() {
+//    pdfThumbnailView = PDFThumbnailView()
+      pdfThumbnailView.translatesAutoresizingMaskIntoConstraints = false
+      NSLayoutConstraint.activate([
+          pdfThumbnailView.heightAnchor.constraint(equalToConstant: CGFloat(thumbnailSize)),
+        pdfThumbnailView.widthAnchor.constraint(equalToConstant: CGFloat((pdfView.document!.pageCount)*(thumbnailSize + pdfThumbnailPerPagePadding))),
+      ])
+//    pdfThumbnailViewContainer = UIScrollView()
+      pdfThumbnailViewContainer.delegate = self
+      pdfThumbnailViewContainer.isScrollEnabled = true
+      pdfThumbnailViewContainer.translatesAutoresizingMaskIntoConstraints = false
+    pdfThumbnailViewContainer.backgroundColor = UIColor.init(red: 27/255, green: 27/255, blue: 27/255, alpha: 0.6)//UIColor.init(hexStr: "1b1b1b")
+      pdfThumbnailViewContainer.addSubview(pdfThumbnailView)
 
+      pdfThumbnailView.pdfView = pdfView
+        pdfThumbnailView.backgroundColor = UIColor.init(red: 27/255, green: 27/255, blue: 27/255, alpha: 0.6)//UIColor.init(hexStr: "1b1b1b")
+      pdfThumbnailView.layoutMode = .horizontal
+//      pdfThumbnailView.thumbnailSize = CGSize(width: 80, height: 130)
+      pdfThumbnailView.thumbnailSize = CGSize(width: thumbnailSize, height: thumbnailSize)
+    pdfThumbnailView.contentInset = UIEdgeInsets(top: 10, left: 0, bottom: 10, right: 0)
+//    pdfThumbnailViewContainer.contentSize = CGSize.init(width: CGFloat((pdfView.document!.pageCount)*(thumbnailSize + pdfThumbnailPerPagePadding)), height: 130)
+      NSLayoutConstraint.activate([
+          pdfThumbnailView.leadingAnchor.constraint(equalTo: pdfThumbnailViewContainer.leadingAnchor),
+          pdfThumbnailView.trailingAnchor.constraint(equalTo: pdfThumbnailViewContainer.trailingAnchor),
+          pdfThumbnailView.topAnchor.constraint(equalTo: pdfThumbnailViewContainer.topAnchor ,constant: 15),
+          pdfThumbnailView.bottomAnchor.constraint(equalTo: pdfThumbnailViewContainer.bottomAnchor)
+      ])
+    self.view.addSubview(pdfThumbnailViewContainer)
+
+    NSLayoutConstraint.activate([
+      pdfThumbnailViewContainer.leadingAnchor.constraint(equalTo: self.view.leadingAnchor),
+      pdfThumbnailViewContainer.trailingAnchor.constraint(equalTo: self.view.trailingAnchor),
+      pdfThumbnailViewContainer.heightAnchor.constraint(equalToConstant: CGFloat(100)),
+      pdfThumbnailViewContainer.bottomAnchor.constraint(equalTo: self.view.bottomAnchor),
+    ])
+  }
+    
     func setupEvents() {
         NotificationCenter.default.addObserver(self,
-                                               selector: #selector(pdfViewPageChanged(_:)),
+                                               selector: #selector(pdfViewPageChanged(notification:)),
                                                name: .PDFViewPageChanged,
                                                object: nil)
 
-        barHideOnTapGestureRecognizer.addTarget(self, action: #selector(gestureRecognizedToggleVisibility(_:)))
+        barHideOnTapGestureRecognizer.addTarget(self, action: #selector(gestureRecognizedToggleVisibility(gestureRecognizer:)))
         barHideOnTapGestureRecognizer.numberOfTapsRequired = 1
         barHideOnTapGestureRecognizer.delegate = self
         pdfView.addGestureRecognizer(barHideOnTapGestureRecognizer)
@@ -194,33 +268,34 @@ open class PDFReaderViewController: UIViewController {
         }
         tableOfContentsToggleSegmentedControl.selectedSegmentIndex = 0
         tableOfContentsToggleSegmentedControl.addTarget(self,
-                                                        action: #selector(toggleTableOfContentsView(_:)),
+                                                        action: #selector(toggleTableOfContentsView(sender:)),
                                                         for: .valueChanged)
     }
 
     // MARK: - Notification Events
-    func pdfViewPageChanged(_ notification: Notification) {
+    func pdfViewPageChanged(notification: Notification) {
         if pdfViewGestureRecognizer.isTracking {
             hideBars()
         }
         updateBookmarkStatus()
         updatePageNumberLabel()
+//        updateThumbnailView()
     }
 
     // MARK: - Actions
-    func resume(_ sender: UIBarButtonItem) {
+    func resume(sender: UIBarButtonItem) {
         setDefaultUIState()
     }
 
-    func back(_ sender: UIBarButtonItem) {
+    func back(sender: UIBarButtonItem) {
         dismissModule(animated: true)
     }
 
-    func showTableOfContents(_ sender: UIBarButtonItem) {
+    func showTableOfContents(sender: UIBarButtonItem) {
         showTableOfContents()
     }
 
-    func showActionMenu(_ sender: UIBarButtonItem) {
+    func showActionMenu(sender: UIBarButtonItem) {
 
         guard let documentToShare = pdfDocument else {
             print("Unable to share: pdfDocument is nil")
@@ -237,15 +312,15 @@ open class PDFReaderViewController: UIViewController {
         navigationController.modalPresentationStyle = .popover
         navigationController.popoverPresentationController?.barButtonItem = sender
         navigationController.popoverPresentationController?.permittedArrowDirections = .up
-        navigationController.popoverPresentationController?.delegate = self
+//        navigationController.popoverPresentationController?.delegate = self
         present(navigationController, animated: true)
     }
 
-    func annotateAction(_ sender: UIBarButtonItem) {
+    func annotateAction(sender: UIBarButtonItem) {
         enableAnnotationMode()
     }
 
-    func showAppearanceMenu(_ sender: UIBarButtonItem) {
+    func showAppearanceMenu(sender: UIBarButtonItem) {
         guard let viewController = storyboard?.instantiateViewController(withIdentifier: "AppearanceViewController")
             as? AppearanceViewController else { return }
         viewController.modalPresentationStyle = .popover
@@ -256,7 +331,7 @@ open class PDFReaderViewController: UIViewController {
         present(viewController, animated: true, completion: nil)
     }
 
-    func showSearchView(_ sender: UIBarButtonItem) {
+    func showSearchView(sender: UIBarButtonItem) {
         if let searchNavigationController = self.searchNavigationController {
             present(searchNavigationController, animated: true, completion: nil)
         } else if let navigationController =
@@ -270,7 +345,7 @@ open class PDFReaderViewController: UIViewController {
         }
     }
 
-    func addOrRemoveBookmark(_ sender: UIBarButtonItem) {
+    func addOrRemoveBookmark(sender: UIBarButtonItem) {
 
         guard let documentURL = pdfDocument?.documentURL?.absoluteString,
             let currentPage = pdfView.currentPage,
@@ -288,7 +363,7 @@ open class PDFReaderViewController: UIViewController {
         }
     }
 
-    func toggleTableOfContentsView(_ sender: UISegmentedControl) {
+    func toggleTableOfContentsView(sender: UISegmentedControl) {
         pdfView.isHidden = true
         titleLabelContainer.alpha = 0
         pageNumberLabelContainer.alpha = 0
@@ -308,7 +383,7 @@ open class PDFReaderViewController: UIViewController {
         }
     }
 
-    func gestureRecognizedToggleVisibility(_ gestureRecognizer: UITapGestureRecognizer) {
+    func gestureRecognizedToggleVisibility(gestureRecognizer: UITapGestureRecognizer) {
         guard let navigationController = navigationController else { return }
         if navigationController.navigationBar.alpha > 0 {
             hideBars()
@@ -316,6 +391,7 @@ open class PDFReaderViewController: UIViewController {
             showBars()
         }
     }
+
 
     func dismissModule(animated: Bool = true) {
 
@@ -386,7 +462,7 @@ open class PDFReaderViewController: UIViewController {
                 navigationController.navigationBar.alpha = 1
             }
             self.pdfThumbnailViewContainer.alpha = 1
-            self.titleLabelContainer.alpha = 1
+            self.titleLabelContainer.alpha = 0
             self.pageNumberLabelContainer.alpha = 1
         }
     }
@@ -412,40 +488,41 @@ open class PDFReaderViewController: UIViewController {
             UIBarButtonItem(image: UIImage(named: "PDFReaderNavigationBack", in: bundle, compatibleWith: nil),
                             style: .plain,
                             target: self,
-                            action: #selector(back(_:))),
+                            action: #selector(back(sender:))),
             UIBarButtonItem(barButtonSystemItem: .bookmarks,
                             target: self,
-                            action: #selector(showTableOfContents(_:))),
+                            action: #selector(showTableOfContents(sender:))),
             UIBarButtonItem(barButtonSystemItem: .search,
                             target: self,
-                            action: #selector(showSearchView(_:)))
+                            action: #selector(showSearchView(sender:)))
         ]
 
         bookmarkButton =
             UIBarButtonItem(image: UIImage(named: "PDFReaderBookmarkDefault", in: bundle, compatibleWith: nil),
                             style: .plain,
                             target: self,
-                            action: #selector(addOrRemoveBookmark(_:)))
+                            action: #selector(addOrRemoveBookmark(sender:)))
 
         navigationItem.rightBarButtonItems = [
             UIBarButtonItem(image: UIImage(named: "PDFReaderAnnotation", in: bundle, compatibleWith: nil),
                             style: .plain,
                             target: self,
-                            action: #selector(annotateAction(_:))),
+                            action: #selector(annotateAction(sender:))),
             UIBarButtonItem(barButtonSystemItem: .action,
                             target: self,
-                            action: #selector(showActionMenu(_:))),
-            bookmarkButton,
-            UIBarButtonItem(image: UIImage(named: "PDFReaderBrightness", in: bundle, compatibleWith: nil),
-                            style: .plain,
-                            target: self,
-                            action: #selector(showAppearanceMenu(_:)))
+                            action: #selector(showActionMenu(sender:))),
+            bookmarkButton
+          
         ]
-
+//      UIBarButtonItem(image: UIImage(named: "PDFReaderBrightness", in: bundle, compatibleWith: nil),
+//                      style: .plain,
+//                      target: self,
+//                      action: #selector(showAppearanceMenu(sender:)))
+      
         pdfThumbnailViewContainer.alpha = 1
 
         pdfView.isHidden = false
-        titleLabelContainer.alpha = 1
+        titleLabelContainer.alpha = 0
         pageNumberLabelContainer.alpha = 1
         thumbnailGridViewConainer.isHidden = true
         outlineViewConainer.isHidden = true
@@ -464,7 +541,7 @@ extension PDFReaderViewController {
         pdfView.go(to: page)
     }
 
-    func selectAndOpen(_ selection: PDFSelection) {
+    func selectAndOpen(selection: PDFSelection) {
         selection.color = .yellow
         pdfView.currentSelection = selection
         pdfView.go(to: selection)
@@ -502,21 +579,25 @@ private extension PDFReaderViewController {
             UIBarButtonItem(image: UIImage(named: "PDFReaderNavigationBack", in: bundle, compatibleWith: nil),
                             style: .plain,
                             target: self,
-                            action: #selector(back(_:))),
+                            action: #selector(back(sender:))),
             UIBarButtonItem(customView: tableOfContentsToggleSegmentedControl)
         ]
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: NSLocalizedString("Resume", comment: ""),
                                                             style: .plain,
                                                             target: self,
-                                                            action: #selector(resume(_:)))
+                                                            action: #selector(resume(sender:)))
 
         pdfThumbnailViewContainer.alpha = 0
-        toggleTableOfContentsView(tableOfContentsToggleSegmentedControl)
+        toggleTableOfContentsView(sender: tableOfContentsToggleSegmentedControl)
         barHideOnTapGestureRecognizer.isEnabled = false
     }
 
     func adjustThumbnailViewHeight() {
-        pdfThumbnailViewHeightConstraint.constant = 44 + view.safeAreaInsets.bottom
+//      if pdfView.isUsingPageViewController == true {
+//        pdfThumbnailViewHeightConstraint.constant = 130 //+ view.safeAreaInsets.bottom
+//      }else {
+//        pdfThumbnailViewHeightConstraint.constant = 100 //+ view.safeAreaInsets.bottom
+//      }
     }
 
     func updateBookmarkStatus() {
@@ -532,17 +613,19 @@ private extension PDFReaderViewController {
 
     func updatePageNumberLabel() {
         guard let currentPage = pdfView.visiblePages.first,
-            let index = pdfDocument?.index(for: currentPage),
+              let index = pdfDocument?.index(for: currentPage),
             let pageCount = pdfDocument?.pageCount else {
                 pageNumberLabel.text = nil
                 return
         }
-
+     
         if pdfView.displayMode == .singlePage || pdfView.displayMode == .singlePageContinuous {
             pageNumberLabel.text = String("\(index + 1)/\(pageCount)")
         } else {
             let currentPagesIndexes = (index > 0 && index < pageCount) ? "\(index + 1)-\(index + 2)" : "\(index + 1)"
             pageNumberLabel.text = String("\(currentPagesIndexes)/\(pageCount)")
         }
+      
     }
+
 }
