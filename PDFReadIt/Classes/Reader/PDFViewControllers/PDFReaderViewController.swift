@@ -20,7 +20,7 @@ open class PDFReaderViewController: UIViewController,UIScrollViewDelegate {
 
     static public func instantiateViewController(with document: PDFDocument,
                                                  isNeedToOverwriteDocument: Bool) -> UINavigationController {
-        guard let navigationController = UIStoryboard(name: "FF06", bundle: Bundle(for: self))
+        guard let navigationController = UIStoryboard(name: "PDFReadIt", bundle: Bundle(for: self))
             .instantiateInitialViewController() as? UINavigationController,
             let viewController = navigationController.topViewController as? Self else {
                 fatalError("Unable to instantiate PDFReaderViewController")
