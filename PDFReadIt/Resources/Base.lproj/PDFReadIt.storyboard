@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="16097" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="XKz-NW-4Fd">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="17506" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="XKz-NW-4Fd">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16087"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17505"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -107,6 +108,7 @@
                                         </constraints>
                                     </view>
                                 </subviews>
+                                <viewLayoutGuide key="safeArea" id="LBJ-3o-kam"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="44" id="1Vs-gZ-XGV"/>
@@ -118,7 +120,6 @@
                                     <constraint firstAttribute="bottom" secondItem="0em-Nh-4yF" secondAttribute="bottom" id="m8g-rZ-hpx"/>
                                     <constraint firstItem="LBJ-3o-kam" firstAttribute="trailing" secondItem="auS-e9-LIs" secondAttribute="trailing" id="uwi-v9-jAd"/>
                                 </constraints>
-                                <viewLayoutGuide key="safeArea" id="LBJ-3o-kam"/>
                             </view>
                             <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="rQ3-lI-rex">
                                 <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
@@ -134,6 +135,7 @@
                                 </constraints>
                             </view>
                         </subviews>
+                        <viewLayoutGuide key="safeArea" id="FES-HY-1sl"/>
                         <color key="backgroundColor" red="0.50196078431372548" green="0.50196078431372548" blue="0.50196078431372548" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                         <constraints>
                             <constraint firstItem="dRa-hu-L5d" firstAttribute="top" secondItem="wu0-JT-Hpp" secondAttribute="top" id="4pK-qe-9UM"/>
@@ -166,7 +168,6 @@
                             <constraint firstAttribute="trailing" secondItem="rQ3-lI-rex" secondAttribute="trailing" id="vLf-ba-Xjm"/>
                             <constraint firstItem="dRa-hu-L5d" firstAttribute="trailing" secondItem="wu0-JT-Hpp" secondAttribute="trailing" id="y69-D2-8SZ"/>
                         </constraints>
-                        <viewLayoutGuide key="safeArea" id="FES-HY-1sl"/>
                     </view>
                     <navigationItem key="navigationItem" id="for-RT-gCR"/>
                     <connections>
@@ -176,8 +177,6 @@
                         <outlet property="outlineViewConainer" destination="ZP2-Cv-L3H" id="LZA-0q-ZpQ"/>
                         <outlet property="pageNumberLabel" destination="v3u-OX-nvq" id="sMZ-5T-ad9"/>
                         <outlet property="pageNumberLabelContainer" destination="iLu-hy-Yr2" id="7sv-Qe-SuC"/>
-                        <outlet property="pdfThumbnailView" destination="auS-e9-LIs" id="eHX-5K-xs6"/>
-                        <outlet property="pdfThumbnailViewContainer" destination="gH8-GA-Txo" id="akK-mz-ynX"/>
                         <outlet property="pdfThumbnailViewHeightConstraint" destination="1Vs-gZ-XGV" id="gnU-dK-3Vl"/>
                         <outlet property="pdfView" destination="dRa-hu-L5d" id="yfh-f4-boL"/>
                         <outlet property="thumbnailGridViewConainer" destination="EfD-K5-tnG" id="OB1-bV-tb4"/>
@@ -220,13 +219,13 @@
                                 <rect key="frame" x="14" y="7" width="292" height="31"/>
                             </slider>
                         </subviews>
+                        <viewLayoutGuide key="safeArea" id="iza-bz-CZc"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="iza-bz-CZc" firstAttribute="trailing" secondItem="sOa-RE-GtP" secondAttribute="trailing" constant="16" id="HQc-y4-jSg"/>
                             <constraint firstItem="sOa-RE-GtP" firstAttribute="leading" secondItem="iza-bz-CZc" secondAttribute="leading" constant="16" id="eaD-ta-0TJ"/>
                             <constraint firstItem="sOa-RE-GtP" firstAttribute="centerY" secondItem="3Jf-r8-D1v" secondAttribute="centerY" id="xcf-bu-3yx"/>
                         </constraints>
-                        <viewLayoutGuide key="safeArea" id="iza-bz-CZc"/>
                     </view>
                     <size key="freeformSize" width="320" height="44"/>
                     <connections>
@@ -272,17 +271,17 @@
                         <subviews>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="vWy-dK-Bb2">
                                 <rect key="frame" x="0.0" y="44" width="414" height="818"/>
-                                <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                             </tableView>
                         </subviews>
-                        <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                        <viewLayoutGuide key="safeArea" id="aMc-No-FXe"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
                             <constraint firstItem="vWy-dK-Bb2" firstAttribute="top" secondItem="aMc-No-FXe" secondAttribute="top" id="0Ua-hq-Hjw"/>
                             <constraint firstItem="vWy-dK-Bb2" firstAttribute="leading" secondItem="aMc-No-FXe" secondAttribute="leading" id="620-iT-m0c"/>
                             <constraint firstItem="aMc-No-FXe" firstAttribute="bottom" secondItem="vWy-dK-Bb2" secondAttribute="bottom" id="wM0-jv-u6R"/>
                             <constraint firstItem="aMc-No-FXe" firstAttribute="trailing" secondItem="vWy-dK-Bb2" secondAttribute="trailing" id="xbM-Os-LEZ"/>
                         </constraints>
-                        <viewLayoutGuide key="safeArea" id="aMc-No-FXe"/>
                     </view>
                     <connections>
                         <outlet property="tableView" destination="vWy-dK-Bb2" id="ZQm-Vf-PHs"/>
@@ -339,5 +338,8 @@
     <resources>
         <image name="PDFReaderBrightnessMax" width="24" height="24"/>
         <image name="PDFReaderBrightnessMin" width="24" height="24"/>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
     </resources>
 </document>
