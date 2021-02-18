@@ -9,7 +9,6 @@
 import MessageUI
 import PDFKit
 import UIKit
-
 @objcMembers
 open class PDFReaderViewController: UIViewController,UIScrollViewDelegate {
 
@@ -279,9 +278,12 @@ open class PDFReaderViewController: UIViewController,UIScrollViewDelegate {
         }
         updateBookmarkStatus()
         updatePageNumberLabel()
-//        updateThumbnailView()
+        updateThumbnailView()
     }
 
+    func updateThumbnailView() {
+        
+    }
     // MARK: - Actions
     func resume(sender: UIBarButtonItem) {
         setDefaultUIState()
@@ -614,18 +616,23 @@ private extension PDFReaderViewController {
     func updatePageNumberLabel() {
         guard let currentPage = pdfView.visiblePages.first,
               let index = pdfDocument?.index(for: currentPage),
-            let pageCount = pdfDocument?.pageCount else {
+            let pageCount = pdfDocument?.pageCount, let curPg = pdfView.currentPage?.pageRef?.pageNumber  else {
                 pageNumberLabel.text = nil
                 return
         }
-     
-        if pdfView.displayMode == .singlePage || pdfView.displayMode == .singlePageContinuous {
-            pageNumberLabel.text = String("\(index + 1)/\(pageCount)")
-        } else {
-            let currentPagesIndexes = (index > 0 && index < pageCount) ? "\(index + 1)-\(index + 2)" : "\(index + 1)"
-            pageNumberLabel.text = String("\(currentPagesIndexes)/\(pageCount)")
+        
+        let desiredRect = CGRect(x: (index * thumbnailSize) + (curPg) * 2 , y: 0, width: Int(pdfThumbnailViewContainer.frame.size.width), height: Int(pdfThumbnailViewContainer.frame.size.height))
+        if !pdfThumbnailViewContainer.bounds.contains(desiredRect){
+            pdfThumbnailViewContainer.scrollRectToVisible(desiredRect, animated: true)
         }
-      
+        
+     
+//        if pdfView.displayMode == .singlePage || pdfView.displayMode == .singlePageContinuous {
+//            pageNumberLabel.text = String("\(index + 1)/\(pageCount)")
+//        } else {
+//            let currentPagesIndexes = (index > 0 && index < pageCount) ? "\(index + 1)-\(index + 2)" : "\(index + 1)"
+//            pageNumberLabel.text = String("\(currentPagesIndexes)/\(pageCount)")
+//        }
+        pageNumberLabel.text = String("\(curPg)/\(pageCount)")
     }
-
 }
