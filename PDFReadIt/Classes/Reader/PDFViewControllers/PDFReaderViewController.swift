@@ -504,6 +504,11 @@ open class PDFReaderViewController: UIViewController,UIScrollViewDelegate {
                             style: .plain,
                             target: self,
                             action: #selector(addOrRemoveBookmark(sender:)))
+        
+        let brightess = UIBarButtonItem(image: UIImage(named: "PDFReaderBrightness", in: bundle, compatibleWith: nil),
+                                        style: .plain,
+                                        target: self,
+                                        action: #selector(showAppearanceMenu(sender:)))
 
         navigationItem.rightBarButtonItems = [
             UIBarButtonItem(image: UIImage(named: "PDFReaderAnnotation", in: bundle, compatibleWith: nil),
@@ -513,13 +518,10 @@ open class PDFReaderViewController: UIViewController,UIScrollViewDelegate {
             UIBarButtonItem(barButtonSystemItem: .action,
                             target: self,
                             action: #selector(showActionMenu(sender:))),
-            bookmarkButton
+            bookmarkButton,
+            brightess
           
         ]
-//      UIBarButtonItem(image: UIImage(named: "PDFReaderBrightness", in: bundle, compatibleWith: nil),
-//                      style: .plain,
-//                      target: self,
-//                      action: #selector(showAppearanceMenu(sender:)))
       
         pdfThumbnailViewContainer.alpha = 1
 
