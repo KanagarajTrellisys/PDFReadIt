@@ -34,6 +34,7 @@ open class PDFReaderViewController: UIViewController,UIScrollViewDelegate {
 
     // MARK: - Outlets
     @IBOutlet private weak var pdfView: PDFView!
+    public var bIsEnableShare = false
 //    @IBOutlet private weak var
     let pdfThumbnailViewContainer = UIScrollView()
 //    @IBOutlet private weak var
@@ -509,19 +510,23 @@ open class PDFReaderViewController: UIViewController,UIScrollViewDelegate {
                                         style: .plain,
                                         target: self,
                                         action: #selector(showAppearanceMenu(sender:)))
-
-        navigationItem.rightBarButtonItems = [
-            UIBarButtonItem(image: UIImage(named: "PDFReaderAnnotation", in: bundle, compatibleWith: nil),
-                            style: .plain,
-                            target: self,
-                            action: #selector(annotateAction(sender:))),
-            UIBarButtonItem(barButtonSystemItem: .action,
-                            target: self,
-                            action: #selector(showActionMenu(sender:))),
-            bookmarkButton,
-            brightess
-          
-        ]
+        
+        let share = UIBarButtonItem(barButtonSystemItem: .action,
+                                    target: self,
+                                    action: #selector(showActionMenu(sender:)))
+        let annotation = UIBarButtonItem(image: UIImage(named: "PDFReaderAnnotation", in: bundle, compatibleWith: nil),
+                        style: .plain,
+                        target: self,
+                        action: #selector(annotateAction(sender:)))
+        
+        var rightBarButtons = [UIBarButtonItem]()
+        rightBarButtons.append(annotation)
+        if bIsEnableShare {
+            rightBarButtons.append(share)
+        }
+        rightBarButtons.append(bookmarkButton)
+        rightBarButtons.append(brightess)
+        navigationItem.rightBarButtonItems = rightBarButtons
       
         pdfThumbnailViewContainer.alpha = 1
 
