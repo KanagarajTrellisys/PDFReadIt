@@ -108,7 +108,7 @@ open class PDFReaderViewController: UIViewController,UIScrollViewDelegate {
         let usrDef = UserDefaults.standard
         if let toPageNum = usrDef.value(forKey: "PDF_LastRead_\(titleID)") as? Int, toPageNum > 0,
            let pdfToPg = pdfDocument?.page(at: toPageNum - 1) {
-          printMessage(msg: "PDF_LastRead_\(titleID)   : \(toPageNum)")
+          print("PDF_LastRead_\(titleID)   : \(toPageNum)")
           pdfView.go(to: pdfToPg)
         }
       }
@@ -657,7 +657,7 @@ private extension PDFReaderViewController {
       let usrDef = UserDefaults.standard
       usrDef.setValue(curPg, forKey: "PDF_LastRead_\(titleID)")
       usrDef.synchronize()
-      printMessage(msg: "upddate --- PDF_LastRead_\(titleID) : \(curPg)")
+      print("upddate --- PDF_LastRead_\(titleID) : \(curPg)")
     }
     
     pageNumberLabel.text = String("\(curPg)/\(pageCount)")
