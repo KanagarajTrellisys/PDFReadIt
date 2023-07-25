@@ -13,23 +13,24 @@ import UIKit
 open class PDFReaderViewController: UIViewController,UIScrollViewDelegate {
 
     // MARK: - Static members
-    static public func instantiateViewController(with document: PDFDocument) -> UINavigationController {
-        return instantiateViewController(with: document, isNeedToOverwriteDocument: true)
+    static public func instantiateViewController(with document: PDFDocument, titleID: String = "") -> UINavigationController {
+      return instantiateViewController(with: document, isNeedToOverwriteDocument: false, titleID: titleID)
     }
 
     static public func instantiateViewController(with document: PDFDocument,
-                                                 isNeedToOverwriteDocument: Bool) -> UINavigationController {
-        guard let navigationController = UIStoryboard(name: "PDFReadIt", bundle: Bundle(for: self))
-            .instantiateInitialViewController() as? UINavigationController,
+                                                 isNeedToOverwriteDocument: Bool, titleID: String = "") -> UINavigationController {
+      guard let navigationController = UIStoryboard(name: "PDFReadIt", bundle: Bundle(for: self))
+        .instantiateInitialViewController() as? UINavigationController,
             let viewController = navigationController.topViewController as? Self else {
-                fatalError("Unable to instantiate PDFReaderViewController")
-        }
-        viewController.pdfDocument = document
-        viewController.isNeedToOverwriteDocument = isNeedToOverwriteDocument
-//      navigationController.navigationBar.barStyle = .blackTranslucent
+        fatalError("Unable to instantiate PDFReaderViewController")
+      }
+      viewController.pdfDocument = document
+      viewController.isNeedToOverwriteDocument = isNeedToOverwriteDocument
+      viewController.titleID = titleID
+      //      navigationController.navigationBar.barStyle = .blackTranslucent
       navigationController.navigationBar.isTranslucent = true
       navigationController.navigationBar.backgroundColor = UIColor.clear
-        return navigationController
+      return navigationController
     }
 
     // MARK: - Outlets
@@ -71,6 +72,8 @@ open class PDFReaderViewController: UIViewController,UIScrollViewDelegate {
     // MARK: - Variables
     /// Set this flag to false if you don't want to overwrite opened document (for example with drawings on it)
     var isNeedToOverwriteDocument = true
+    var titleID = ""
+    var isPDFLoaded = false
     var pdfPrevPageChangeSwipeGestureRecognizer: PDFPageChangeSwipeGestureRecognizer?
     var pdfNextPageChangeSwipeGestureRecognizer: PDFPageChangeSwipeGestureRecognizer?
     private(set) var pdfDocument: PDFDocument?
@@ -87,18 +90,29 @@ open class PDFReaderViewController: UIViewController,UIScrollViewDelegate {
 
     open var postDismissAction: ((PDFReaderViewController) -> Void)?
 
-    // MARK: - Lifecycle
-    override open func viewDidLoad() {
-        super.viewDidLoad()
-        setupUI()
-        setupEvents()
-        setDefaultUIState()
-    }
+  // MARK: - Lifecycle
+  override open func viewDidLoad() {
+    super.viewDidLoad()
+    setupUI()
+    setupEvents()
+    setDefaultUIState()
+    
+  }
 
     // This code is required to fix PDFView Scroll Position when NOT using pdfView.usePageViewController(true)
     override open func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         shouldUpdatePDFScrollPosition = false
+      
+      if (titleID.isEmpty == false && pdfView != nil && pdfDocument != nil) {
+        let usrDef = UserDefaults.standard
+        if let toPageNum = usrDef.value(forKey: "PDF_LastRead_\(titleID)") as? Int, toPageNum > 0,
+           let pdfToPg = pdfDocument?.page(at: toPageNum - 1) {
+          printMessage(msg: "PDF_LastRead_\(titleID)   : \(toPageNum)")
+          pdfView.go(to: pdfToPg)
+        }
+      }
+      isPDFLoaded = true
     }
 
     // This code is required to fix PDFView Scroll Position when NOT using pdfView.usePageViewController(true)
@@ -574,7 +588,7 @@ extension PDFReaderViewController {
 private extension PDFReaderViewController {
 
     // This code is required to fix PDFView Scroll Position when NOT using pdfView.usePageViewController(true)
-    func fixPDFViewScrollPosition() {
+    func fixPDFViewScrollPosition() {    
         guard let page = pdfView.document?.page(at: 0) else { return }
         pdfView.go(to: PDFDestination(page: page, at: CGPoint(x: 0, y: page.bounds(for: pdfView.displayBox).height)))
     }
@@ -620,26 +634,32 @@ private extension PDFReaderViewController {
         bookmarkButton.image = UIImage(named: imageName, in: bundle, compatibleWith: nil)
     }
 
-    func updatePageNumberLabel() {
-        guard let currentPage = pdfView.visiblePages.first,
-              let index = pdfDocument?.index(for: currentPage),
-            let pageCount = pdfDocument?.pageCount, let curPg = pdfView.currentPage?.pageRef?.pageNumber  else {
-                pageNumberLabel.text = nil
-                return
-        }
-        
-        let desiredRect = CGRect(x: (index * thumbnailSize) + (curPg) * 2 , y: 0, width: Int(pdfThumbnailViewContainer.frame.size.width), height: Int(pdfThumbnailViewContainer.frame.size.height))
-        if !pdfThumbnailViewContainer.bounds.contains(desiredRect){
-            pdfThumbnailViewContainer.scrollRectToVisible(desiredRect, animated: true)
-        }
-        
-     
-//        if pdfView.displayMode == .singlePage || pdfView.displayMode == .singlePageContinuous {
-//            pageNumberLabel.text = String("\(index + 1)/\(pageCount)")
-//        } else {
-//            let currentPagesIndexes = (index > 0 && index < pageCount) ? "\(index + 1)-\(index + 2)" : "\(index + 1)"
-//            pageNumberLabel.text = String("\(currentPagesIndexes)/\(pageCount)")
-//        }
-        pageNumberLabel.text = String("\(curPg)/\(pageCount)")
+  func updatePageNumberLabel() {
+    guard let currentPage = pdfView.visiblePages.first,
+          let index = pdfDocument?.index(for: currentPage),
+          let pageCount = pdfDocument?.pageCount, let curPg = pdfView.currentPage?.pageRef?.pageNumber  else {
+      pageNumberLabel.text = nil
+      return
     }
+    
+    let desiredRect = CGRect(x: (index * thumbnailSize) + (curPg) * 2 , y: 0, width: Int(pdfThumbnailViewContainer.frame.size.width), height: Int(pdfThumbnailViewContainer.frame.size.height))
+    if !pdfThumbnailViewContainer.bounds.contains(desiredRect){
+      pdfThumbnailViewContainer.scrollRectToVisible(desiredRect, animated: true)
+    }
+    
+    //        if pdfView.displayMode == .singlePage || pdfView.displayMode == .singlePageContinuous {
+    //            pageNumberLabel.text = String("\(index + 1)/\(pageCount)")
+    //        } else {
+    //            let currentPagesIndexes = (index > 0 && index < pageCount) ? "\(index + 1)-\(index + 2)" : "\(index + 1)"
+    //            pageNumberLabel.text = String("\(currentPagesIndexes)/\(pageCount)")
+    //        }
+    if (titleID.isEmpty == false && isPDFLoaded == true) {
+      let usrDef = UserDefaults.standard
+      usrDef.setValue(curPg, forKey: "PDF_LastRead_\(titleID)")
+      usrDef.synchronize()
+      printMessage(msg: "upddate --- PDF_LastRead_\(titleID) : \(curPg)")
+    }
+    
+    pageNumberLabel.text = String("\(curPg)/\(pageCount)")
+  }
 }
