@@ -13,12 +13,12 @@ import UIKit
 open class PDFReaderViewController: UIViewController,UIScrollViewDelegate {
 
     // MARK: - Static members
-    static public func instantiateViewController(with document: PDFDocument, titleID: String = "") -> UINavigationController {
-      return instantiateViewController(with: document, isNeedToOverwriteDocument: false, titleID: titleID)
+    static public func instantiateViewController(with document: PDFDocument, contextKey: String = "") -> UINavigationController {
+      return instantiateViewController(with: document, isNeedToOverwriteDocument: false, contextKey: contextKey)
     }
 
     static public func instantiateViewController(with document: PDFDocument,
-                                                 isNeedToOverwriteDocument: Bool, titleID: String = "") -> UINavigationController {
+                                                 isNeedToOverwriteDocument: Bool, contextKey: String = "") -> UINavigationController {
       guard let navigationController = UIStoryboard(name: "PDFReadIt", bundle: Bundle(for: self))
         .instantiateInitialViewController() as? UINavigationController,
             let viewController = navigationController.topViewController as? Self else {
@@ -26,7 +26,7 @@ open class PDFReaderViewController: UIViewController,UIScrollViewDelegate {
       }
       viewController.pdfDocument = document
       viewController.isNeedToOverwriteDocument = isNeedToOverwriteDocument
-      viewController.titleID = titleID
+      viewController.contextKey = contextKey
       //      navigationController.navigationBar.barStyle = .blackTranslucent
       navigationController.navigationBar.isTranslucent = true
       navigationController.navigationBar.backgroundColor = UIColor.clear
@@ -72,7 +72,7 @@ open class PDFReaderViewController: UIViewController,UIScrollViewDelegate {
     // MARK: - Variables
     /// Set this flag to false if you don't want to overwrite opened document (for example with drawings on it)
     var isNeedToOverwriteDocument = true
-    var titleID = ""
+    var contextKey = ""
     var isPDFLoaded = false
     var pdfPrevPageChangeSwipeGestureRecognizer: PDFPageChangeSwipeGestureRecognizer?
     var pdfNextPageChangeSwipeGestureRecognizer: PDFPageChangeSwipeGestureRecognizer?
@@ -104,11 +104,11 @@ open class PDFReaderViewController: UIViewController,UIScrollViewDelegate {
         super.viewDidAppear(animated)
         shouldUpdatePDFScrollPosition = false
       
-      if (titleID.isEmpty == false && pdfView != nil && pdfDocument != nil) {
+      if (contextKey.isEmpty == false && pdfView != nil && pdfDocument != nil) {
         let usrDef = UserDefaults.standard
-        if let toPageNum = usrDef.value(forKey: "PDF_LastRead_\(titleID)") as? Int, toPageNum > 0,
+        if let toPageNum = usrDef.value(forKey: "\(contextKey)") as? Int, toPageNum > 0,
            let pdfToPg = pdfDocument?.page(at: toPageNum - 1) {
-          print("PDF_LastRead_\(titleID)   : \(toPageNum)")
+          print("\(contextKey)   : \(toPageNum)")
           pdfView.go(to: pdfToPg)
         }
       }
@@ -653,11 +653,11 @@ private extension PDFReaderViewController {
     //            let currentPagesIndexes = (index > 0 && index < pageCount) ? "\(index + 1)-\(index + 2)" : "\(index + 1)"
     //            pageNumberLabel.text = String("\(currentPagesIndexes)/\(pageCount)")
     //        }
-    if (titleID.isEmpty == false && isPDFLoaded == true) {
+    if (contextKey.isEmpty == false && isPDFLoaded == true) {
       let usrDef = UserDefaults.standard
-      usrDef.setValue(curPg, forKey: "PDF_LastRead_\(titleID)")
+      usrDef.setValue(curPg, forKey: "\(contextKey)")
       usrDef.synchronize()
-      print("upddate --- PDF_LastRead_\(titleID) : \(curPg)")
+      print("upddate --- \(contextKey) : \(curPg)")
     }
     
     pageNumberLabel.text = String("\(curPg)/\(pageCount)")
