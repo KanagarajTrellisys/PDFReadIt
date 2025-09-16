@@ -89,6 +89,7 @@ open class PDFReaderViewController: UIViewController,UIScrollViewDelegate {
     private var shouldUpdatePDFScrollPosition = true
 
     open var postDismissAction: ((PDFReaderViewController) -> Void)?
+    open var onPageChangeAction: ((PDFReaderViewController) -> Void)?
 
   // MARK: - Lifecycle
   override open func viewDidLoad() {
@@ -657,6 +658,7 @@ private extension PDFReaderViewController {
       let usrDef = UserDefaults.standard
       usrDef.setValue(curPg, forKey: "\(contextKey)")
       usrDef.synchronize()
+      self.onPageChangeAction?(self)
       print("upddate --- \(contextKey) : \(curPg)")
     }
     
